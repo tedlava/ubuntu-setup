@@ -1,14 +1,18 @@
 #!/bin/bash
 
-# The purpose of this script is to automate the post-installation configuration
-# to achieve my personal ideal setup.  Since I have several computers, I often
-# find myself repeating these steps many times, since I have a tendency to
-# experiment a little too much and have a bad habit of distro-hopping!  However,
-# if I ever learn to kick the distro-hopping habit/hobby, there's a chance
-# that I might make this awesome script and then never end up using it again!
-# Of course, this might make it even easier to experiment with all the distros
-# since I now have an easy way of restoring my Debian back to it's ideal state,
-# so it also might make my distro-hopping even worse...  WTF...
+# Unfortunately, my new laptop needs a more recent kernel than what Debian
+# stable currently offers.  A backported kernel would work, but unfortunately I
+# also need a backported kernel in order for my too-new network card to work!
+# And I cannot install a backported kernel without an Internet connection!  The
+# solution for now, is to switch back to Ubuntu until Debian Bookworm is
+# released (summer 2023), which is a long time...  I also tried Debian Testing
+# (Bookworm) and Sid, and even though both of those will install just fine, I
+# really don't like all of the changes that come with those testing/unstable
+# versions.  Over the last two days, in both testing and unstable, video
+# playback was completely broken in both totem AND vlc!  WTF...  Stable +
+# backports is really the best solution, but I can't seem to figure that out,
+# so I'm making a setup script for Ubuntu to automate some of the dumb shit,
+# like removing/disabling snaps.
 
 
 # Change to script directory to use files as flag variables for saving the
@@ -59,7 +63,7 @@ function contains {
 
 
 echo
-echo "Ted's Debian Setup Script"
+echo "Ted's Ubuntu Setup Script"
 echo '========================='
 echo
 echo "    Release: ${release_name^}"
@@ -119,11 +123,11 @@ if [ -z "$interactive" ]; then
 fi
 
 
-if [ ! -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part_2" ]; then
+if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; then
 	if [ -z "$skip_to_ext" ]; then
 		if [ ! -f "$status_dir/reqs_confirmed" ]; then
 			echo 'This script automates some common settings that I use for'
-			echo 'every Debian installation while still allowing for some changes'
+			echo 'every Ubuntu installation while still allowing for some changes'
 			echo 'through interactive questions.  You will be asked to enter your'
 			echo 'password to sudo.'
 			echo
@@ -135,7 +139,7 @@ if [ ! -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 			# Query user for requirements before proceeding
 			echo
 			echo 'Requirements:'
-			echo "    - Debian Stable installed, / and /home partitions set up as btrfs"
+			echo "    - Ubuntu installed, / and /home partitions set up as btrfs"
 			echo '    - Have patched fonts saved and unzipped in ~/fonts directory (default: Hack)'
 			echo '    - Have a stable Internet connection to download packages'
 			echo "    - Copied the files \"$release_name-config\", \"$release_name-gsettings.txt\", \"$release_name-dconf.txt\""
@@ -161,10 +165,11 @@ if [ ! -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 		fi
 
 
-		# If NOT installing NVIDIA driver, check for Wayland (nvidia-driver package will disable Wayland, at least for now)
-		if [ -z "$(echo "${apt_installs[@]}" | grep nvidia)" ] && [ -n "$WAYLAND_DISPLAY" ]; then
-			wayland=1
-		fi
+		# TODO nvidia drivers should be installed with the Ubuntu's driver manager, it's just easier... If NOT installing NVIDIA driver, check for Wayland (nvidia-driver package will disable Wayland, at least for now)
+		# Wayland also finally allows screen sharing for video conferencing now!  So maybe it's finally a viable option?
+		# if [ -z "$(echo "${apt_installs[@]}" | grep nvidia)" ] && [ -n "$WAYLAND_DISPLAY" ]; then
+		# 	wayland=1
+		# fi
 
 
 		# Create temporary downloads directory
@@ -263,10 +268,8 @@ if [ ! -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 	echo
 	confirm_cmd "sh -c 'curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'"
 	echo
-	echo 'About to install Neovim plugins.  During initial start up of Neovim, there may'
-	echo "be errors due to settings for plugins that aren't installed yet.  Just type"
-	echo 'SPACE to page through the errors so that Neovim can finish installing them.'
-	echo 'When Neovim is finished, please exit Neovim by typing ":qa" and pressing ENTER.'
+	echo 'About to install Neovim plugins.  When Neovim is finished, please exit'
+	echo 'Neovim by typing ":qa" and pressing ENTER.'
 	echo
 	echo '    *** Do NOT close the terminal window! ***'
 	echo
@@ -288,12 +291,12 @@ if [ ! -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 	echo 'The script needs to reboot your system.  When it is finished rebooting,'
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
-	touch "$status_dir/deb_setup_part_1"
-	if [ -n "$wayland" ]; then
-		echo
-		echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
-		echo
-	fi
+	touch "$status_dir/setup_part_1"
+	# if [ -n "$wayland" ]; then
+	# 	echo
+	# 	echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
+	# 	echo
+	# fi
 	read -p 'Press ENTER to reboot...'
 	# Load patched monospace font immediately before reboot since it makes the terminal difficult to read
 	if [ -n "$patched_font" ]; then
@@ -303,7 +306,7 @@ if [ ! -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 	sleep 5
 
 
-elif [ -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part_2" ]; then
+elif [ -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; then
 	# Enable Gnome extensions
 	echo
 	echo 'Enabling recently installed Gnome extensions...'
@@ -346,7 +349,7 @@ elif [ -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 	# Create timeshift snapshot after setup script is complete
 	echo
 	echo 'Create a timeshift snapshot in case you screw up this awesome setup...'
-	confirm_cmd "sudo timeshift --create --comments 'Debian ${release_name^} setup script completed' --yes"
+	confirm_cmd "sudo timeshift --create --comments 'Ubuntu ${release_name^} setup script completed' --yes"
 	echo
 
 
@@ -372,12 +375,12 @@ elif [ -f "$status_dir/deb_setup_part_1" ] && [ ! -f "$status_dir/deb_setup_part
 		echo '          disk in case of a browser crash, not really needed with Firefox Sync)'
 	fi
 	echo
-	touch "$status_dir/deb_setup_part_2"
+	touch "$status_dir/setup_part_2"
 
 
-elif [ -f "$status_dir/deb_setup_part_1" ] && [ -f "$status_dir/deb_setup_part_2" ]; then
+elif [ -f "$status_dir/setup_part_1" ] && [ -f "$status_dir/setup_part_2" ]; then
 	echo
-	echo "Ted's Debian Setup Script has finished.  If you want to run it again,"
+	echo "Ted's Ubuntu Setup Script has finished.  If you want to run it again,"
 	echo "please delete the status directory at \"$status_dir/\", and then"
 	echo 're-run the script.'
 	echo

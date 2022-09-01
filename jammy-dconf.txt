@@ -24,6 +24,6 @@ thermal-display=true
 thermal-show-text=false
 
 [org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
-default-size-columns=80
-default-size-rows=35
+default-size-columns=100
+default-size-rows=50
 login-shell=true

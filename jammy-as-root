@@ -49,90 +49,6 @@ function contains {
 }
 
 
-# Move @rootfs btrfs subvolume to @ for timeshift
-if [ -n "$(grep @rootfs /etc/fstab)" ]; then
-	echo
-	read -p 'Rename the @rootfs btrfs subvolume to @ for timeshift? [Y/n] '
-	if [ -z "$REPLY" ] || [ "${REPLY,}" == 'y' ]; then
-		dev=$(grep '\s/\s' /etc/mtab | cut -d' ' -f1)
-		echo "Detected your / partition is on device: $dev"
-		confirm_cmd "mount $dev /mnt"
-		confirm_cmd 'mv /mnt/@rootfs /mnt/@'
-		confirm_cmd 'umount /mnt'
-		confirm_cmd 'sed -i "s/@rootfs/@/" /etc/fstab'
-		echo 'Reinstalling grub and updating grub...'
-		confirm_cmd "grub-install ${dev:0:$((${#dev}-1))}"
-		confirm_cmd 'update-grub'
-		reboot=1
-		echo '@rootfs btrfs subvolume was renamed to @ for use with timeshift.'
-	fi
-	echo
-fi
-
-
-# Create @home subvolume if not present, and move all user directories to it
-if [ -z "$(grep @home /etc/fstab)" ]; then
-	echo
-	read -p 'Move /home directory into an @home btrfs subvolume for timeshift? [Y/n] '
-	if [ -z "$REPLY" ] || [ "${REPLY,}" == 'y' ]; then
-		dev=$(grep /home /etc/mtab | cut -d' ' -f1)
-		echo "Detected your /home partition is on device: $dev"
-		confirm_cmd "mount $dev /mnt"
-		user_dirs=( $(ls /mnt) )
-		if [ ! -d /mnt/@home ]; then
-			confirm_cmd "btrfs subvolume create /mnt/@home"
-		fi
-		for dir in ${user_dirs[@]}; do
-			if [ -z "$(echo "$dir" | grep timeshift)" ] && [ "$dir" != '@home' ]; then
-				confirm_cmd "cp -a /mnt/$dir /mnt/@home/"
-			fi
-		done
-		confirm_cmd 'umount /mnt'
-		confirm_cmd 'sed -i "s|\(.*/home.*btrfs.*\sdefaults\)\s*\(.*\)|\1,subvol=@home \2|" /etc/fstab'
-		reboot=1
-		echo '@home btrfs subvolume was created and all user directories were copied to it.'
-	fi
-	echo
-fi
-
-
-if [ -n "$reboot" ]; then
-	echo
-	echo 'The script needs to reboot your system.  When it is finished rebooting,'
-	echo 'please re-run the same script and it will resume from where it left off.'
-	echo
-	if [ -n "$wayland" ]; then
-		echo
-		echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
-		echo
-	fi
-	read -p 'Press ENTER to reboot...'
-	systemctl reboot
-	sleep 5
-fi
-
-
-# Remove old home directories in top level of btrfs @home partition
-if [ ! -f "$status_dir/moved_user_dirs" ]; then
-	echo
-	read -p 'Check for and remove old copies of user directories (siblings to @home)? [Y/n] '
-	if [ -z "$REPLY" ] || [ "${REPLY,}" == 'y' ]; then
-		dev=$(grep /home /etc/mtab | cut -d' ' -f1)
-		echo "Detected your /home partition is on device: $dev"
-		confirm_cmd "mount $dev /mnt"
-		user_dirs=( $(ls /mnt) )
-		for dir in ${user_dirs[@]}; do
-			if [ -z "$(echo "$dir" | grep timeshift)" ] && [ "$dir" != '@home' ]; then
-				confirm_cmd "rm -rf /mnt/$dir"
-			fi
-		done
-		confirm_cmd 'umount /mnt'
-		sudo -u $SUDO_USER touch "$status_dir/moved_user_dirs"
-	fi
-	echo
-fi
-
-
 # Remove old configuration in .dotfiles
 if [ ! -f "$status_dir/dotfiles_removed" ]; then
 	echo
@@ -156,56 +72,7 @@ if [ ! -f "$status_dir/disabled_ac_suspend" ]; then
 fi
 
 
-# Upgrade to new release
-if [ ! -f "$status_dir/upgraded_to_$release_name" ]; then
-
-	# Purge unwanted packages
-	echo
-	echo 'Removing unwanted packages from the base installation...'
-	confirm_cmd "apt-get -y purge ${apt_purges[@]}"
-	confirm_cmd 'apt-get -y autopurge'
-	echo
-
-
-	# Update/upgrade for stable packages first
-	echo
-	echo 'Updating apt cache and upgrading current packages...'
-	confirm_cmd 'apt-get update'
-	confirm_cmd 'apt-get -y upgrade'
-	echo
-
-
-	# Install basic utilities
-	echo
-	echo 'Installing git, curl, and timeshift...'
-	confirm_cmd 'apt-get -y install git curl timeshift'
-	echo
-
-
-	# Get stable release name first
-	while read line; do
-		old_release="$(echo "$line" | grep '^deb ' | cut -d' ' -f3 | grep -v [#-])"
-		if [ -n "$old_release" ]; then
-			break
-		fi
-	done < /etc/apt/sources.list
-	
-
-	# Inform user to take a snapshot with Timeshift, must use GUI
-	echo
-	echo 'Timeshift must be set up through the GUI before system snapshots can'
-	echo 'be taken to rollback a bad update or configuration or installation'
-	echo 'of a bad package.  Only use timeshift to snapshot the @ subvolume.'
-	echo 'Check the boxes to add monthly and weekly snapshots as well.  All'
-	echo 'other default settings should be sufficient.  Take an initial snapshot'
-	echo "and give it a title like \"Debian ${old_release^} installed\", just in case you"
-	echo 'screw something up in the rest of the installation... ;)  After it is'
-	echo 'done snapshotting the system, you may close the timeshift window.'
-	echo
-	read -p 'Press ENTER to open timeshift...'
-	confirm_cmd 'timeshift-launcher'
-	echo
-
+if [ ! -f "$status_dir/drivers_installed" ]; then
 
 	# SSD
 	if [ -n "$ssd" ]; then
@@ -218,38 +85,101 @@ if [ ! -f "$status_dir/upgraded_to_$release_name" ]; then
 	echo
 
 
-	# Switch to new repositories
+	# Purge unwanted packages
 	echo
-	echo "Switching to $release_name repositories in /etc/apt/sources.list ..."
+	echo 'Removing unwanted packages from the base installation...'
+	confirm_cmd "apt-get -y purge ${apt_purges[@]}"
+	confirm_cmd 'apt-get -y autopurge'
 	echo
-	confirm_cmd "grep '^deb.* $old_release .*' /etc/apt/sources.list > sources.list"
-	confirm_cmd "sed -i 's/$old_release/$release_name/' sources.list"
-	confirm_cmd 'mv -v sources.list /etc/apt/sources.list'
 
 
-	# Add contrib and non-free to sources.list
-	if [ -n "$extra_repos" ]; then
-		echo
-		echo 'Adding extra repositories (contrib, non-free) to sources.list...'
-		confirm_cmd "sed -i 's/^\(deb.*$release_name.*main\)$/\1 contrib non-free/' /etc/apt/sources.list"
-	fi
-
-
-	# Update/upgrade to new release
+	# Purge and disable snap
 	echo
-	echo "Updating apt cache from $old_release repositories and dist-upgrading to $release_name..."
+	echo 'Removing snap packages and preventing reinstallation of snapd...'
+	confirm_cmd 'systemctl disable snapd.service'
+	confirm_cmd 'systemctl disable snapd.socket'
+	confirm_cmd 'systemctl disable snapd.seeded.service'
+	# Remove "extra" snaps (possibly installed by the user)
+	snaps=($(snap list | awk '{print $1}' | tail -n $(($(snap list | wc -l) - 1))))
+	for snap in "${snaps[@]}"; do
+		if [ -z "$(contains snap_purges snap)" ]; then
+			confirm_cmd "snap remove --purge $snap"
+		fi
+	done
+	# Remove system-installed snaps
+	for snap in "${snap_purges[@]}"; do
+		confirm_cmd "snap remove --purge $snap"
+	done
+	confirm_cmd 'apt-get -y purge snapd gnome-software-plugin-snap'
+	confirm_cmd "rm -rf /var/cache/snapd/ $home/snap" # What about /snap and /var/snap ???
+	confirm_cmd 'echo -e "Package: snapd\\nPin: release a=*\\nPin-Priority: -10" > /etc/apt/preferences.d/nosnap.pref'
+	confirm_cmd 'echo -e "Package: firefox*\\nPin: release o=Ubuntu*\\nPin-Priority: -1" > /etc/apt/preferences.d/firefox-no-snap.pref'
+
+
+	# Adding PPAs
+	for ppa in "${ppas[@]}"; do
+		confirm_cmd "add-apt-repository $ppa"
+	done
+
+
+	# Update/upgrade packages
+	echo
+	echo 'Updating apt cache and upgrading current packages...'
 	confirm_cmd 'apt-get update'
-	confirm_cmd 'apt-get -y dist-upgrade'
-	sudo -u $SUDO_USER touch "$status_dir/upgraded_to_$release_name"
+	confirm_cmd 'apt-get -y upgrade'
+	echo
+
+
+	# Install basic utilities
+	echo
+	echo 'Installing git, curl, timeshift, and firefox (deb)...'
+	confirm_cmd 'apt-get -y install git curl timeshift firefox'
+	echo
+
+
+	# Inform user to take a snapshot with Timeshift, must use GUI
+	echo
+	echo 'Timeshift must be set up through the GUI before system snapshots can'
+	echo 'be taken to rollback a bad update or configuration or installation'
+	echo 'of a bad package.  Only use timeshift to snapshot the @ subvolume.'
+	echo 'Check the boxes to add monthly and weekly snapshots as well.  All'
+	echo 'other default settings should be sufficient.  Take an initial snapshot'
+	echo "and give it a title like \"Ubuntu ${release_name^} installed\", just in case you"
+	echo 'screw something up in the rest of the installation... ;)  After it is'
+	echo 'done snapshotting the system, you may close the timeshift window.'
+	echo
+	read -p 'Press ENTER to open timeshift...'
+	confirm_cmd 'timeshift-launcher'
+	echo
+
+
+	# Install vanilla Gnome
+	echo
+	echo 'Installing vanilla/stock Gnome...'
+	confirm_cmd 'apt-get -y install vanilla-gnome-desktop'
+
+
+	# Startup driver manager to install firmware and other drivers (such as NVIDIA)
+	echo
+	echo 'Please install any recommended firmware and drivers in the Driver Manager...'
+	echo
+	read -p 'Press ENTER to open Software & Updates -> Additional Drivers...'
+	sudo -u $SUDO_USER touch "$status_dir/drivers_installed"
+	confirm_cmd 'software-properties-gtk --open-tab=4'
+
+
 	echo
 	echo 'The script needs to reboot your system.  When it is finished rebooting,'
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
-	if [ -n "$wayland" ]; then
-		echo
-		echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
-		echo
-	fi
+	# if [ -n "$wayland" ]; then
+	# 	echo
+	# 	echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
+	# 	echo
+	# fi
+	echo
+	echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
+	echo
 	read -p 'Press ENTER to reboot...'
 	systemctl reboot
 	sleep 5
@@ -257,7 +187,7 @@ fi
 
 
 # Create timeshift snapshot after booting into new release for the first time
-confirm_cmd "timeshift --create --comments 'Debian ${release_name^} installed' --yes"
+confirm_cmd "timeshift --create --comments 'Ubuntu ${release_name^} installed' --yes"
 
 
 # Inhibit suspend if on AC power but not logged in
@@ -266,15 +196,6 @@ if [ -n "$gdm_inhibit_ac" ]; then
 	echo 'Setting up gdm to stay on when plugged in, but not logged in.'
 	echo 'Will still auto-suspend if on battery power...'
 	confirm_cmd "sudo -u Debian-gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
-	echo
-fi
-
-
-# Install i386 (32-bit) libraries?  Useful for playing Windows games on wine
-if [ -n "$(contains apt_installs wine)" ]; then
-	echo
-	echo 'Enabling 32-bit libraries for playing Windows games on wine...'
-	confirm_cmd dpkg --add-architecture i386
 	echo
 fi
 
@@ -306,7 +227,7 @@ if [ -n "$(contains apt_installs libdvd-pkg)" ]; then
 fi
 
 
-if [ "$GRUB_CMDLINE_LINUX_DEFAULT" != 'quiet' ]; then
+if [ "$GRUB_CMDLINE_LINUX_DEFAULT" != 'quiet splash' ]; then
 	echo
 	echo 'Setting up grub...'
 	confirm_cmd "sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT.*/GRUB_CMDLINE_LINUX_DEFAULT=\"$GRUB_CMDLINE_LINUX_DEFAULT\"/' /etc/default/grub"
@@ -338,10 +259,10 @@ fi
 
 
 # Add private window to context menu for Firefox-ESR launcher
-if [ -n "$priv_firefox_launcher" ]; then
-	echo
-	echo 'Adding private window to context menu for Firefox-ESR launcher...'
-	confirm_cmd 'echo -e "Actions=new-window;new-private-window;\\n\\n[Desktop Action new-window]\\nName=Open a New Window\\nExec=/usr/lib/firefox-esr/firefox-esr -new-window\\n\\n[Desktop Action new-private-window]\\nName=Open a New Private Window\\nExec=/usr/lib/firefox-esr/firefox-esr -private-window\\n" >> /usr/share/applications/firefox-esr.desktop'
-	echo
-fi
+# if [ -n "$priv_firefox_launcher" ]; then
+# 	echo
+# 	echo 'Adding private window to context menu for Firefox-ESR launcher...'
+# 	confirm_cmd 'echo -e "Actions=new-window;new-private-window;\\n\\n[Desktop Action new-window]\\nName=Open a New Window\\nExec=/usr/lib/firefox-esr/firefox-esr -new-window\\n\\n[Desktop Action new-private-window]\\nName=Open a New Private Window\\nExec=/usr/lib/firefox-esr/firefox-esr -private-window\\n" >> /usr/share/applications/firefox-esr.desktop'
+# 	echo
+# fi
 

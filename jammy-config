@@ -10,8 +10,7 @@
 
 status_dir='status' # Holds script status between reboots, can be absolute path or relative (to script dir)
 GRUB_CMDLINE_LINUX_DEFAULT='quiet splash' # To be copied into /etc/default/grub, parms like "pci=noaer" go here
-extra_repos=1 # Add contrib and non-free to sources.list
-# ssd=1 # Uncomment if installed to an SSD
+ssd=1 # Uncomment if installed to an SSD
 gdm_inhibit_ac=1 # Inhibit suspend if on AC power but not logged (for servers and SSH access)
 ignore_lid_switch=1 # Ignore suspend on closing lid tweak
 install_windscribe=1 # VPN with slick Linux GUI!
@@ -21,43 +20,53 @@ patched_font='Hack Nerd Font 9'
 
 # If using 1920x1080 screen resolution, highly recommend changing the default
 # terminal window size in *-dconf.txt to 100 cols by 50 rows
+# Smaller screen resolutions should stick to 80x35 or 80x40
 
 # For minimize and maximize buttons on window title bars, add this line to *-gsettings.txt
 # org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 
+
 apt_purges=(
-	evolution
+	thunderbird
+	branding-ubuntu # Why the hell is Ubuntu sticking their logo on packages they didn't make, like OpenOffice, Eclipse, and even Solitaire?!  WTF...
+)
+
+
+# Snaps will be removed one-by-one, so make sure the order is correct to avoid dependency conflicts!
+snap_purges=(
+	firefox
+	snap-store
+	snapd-desktop-integration
+	gtk-common-themes
+	gnome-3-38-2004
+	core20
+	bare
+	snapd
+)
+
+
+ppas=(
+	ppa:linrunner/tlp # For latest versions of TLP
+	ppa:mozillateam/ppa # For a Firefox deb instead of stupid snaps
 )
 
 
 apt_installs=(
-	# linux-headers-amd64 # required for NVIDIA drivers
-	# nvidia-driver
-	# nvidia-legacy-390xx-driver
-	firmware-misc-nonfree
-	intel-microcode
-	# amd64-microcode
-	# firmware-realtek
-	# firmware-atheros
-	# firmware-iwlwifi
-	apt-listbugs
+	openssh-server
 	tlp # Newer version in backports for newer kernels
 	tlp-rdw # Newer version in backports for newer kernels
-	plymouth # Graphical boot
 	flatpak
 	gnome-software-plugin-flatpak
-	rsync
 	gufw
 	vlc
-	libavcodec-extra
+	# libavcodec-extra # Is this needed?
 	ipython3
 	catfish # Since file searching in Nautilus sucks...
 	gir1.2-gtop-2.0 # Required for the system-monitor Gnome extension
-	libdvd-pkg # Uncomment to watch DVD movies with internal/external DVD drive
-	# nautilus-dropbox
-	neovim # For bullseye, comment out to install latest release from GitHub!
+	# libdvd-pkg # Uncomment to watch DVD movies with internal/external DVD drive
+	nautilus-dropbox
+	neovim
 	python3-neovim
-	xclip # For clipboard sharing with Neovim
 	gimp
 	gimp-data-extras
 	inkscape
@@ -83,6 +92,6 @@ extension_urls=(
 	https://extensions.gnome.org/extension/906/sound-output-device-chooser/
 	https://extensions.gnome.org/extension/72/recent-items/
 	https://extensions.gnome.org/extension/779/clipboard-indicator/
-	https://extensions.gnome.org/extension/3010/system-monitor-next/ # For sid
+	https://extensions.gnome.org/extension/3010/system-monitor-next/
 )
 
