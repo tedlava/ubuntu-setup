@@ -16,20 +16,18 @@ gdm_inhibit_ac=1 # Inhibit suspend if on AC power but not logged (for servers an
 ignore_lid_switch=1 # Ignore suspend on closing lid tweak
 install_windscribe=1 # VPN with slick Linux GUI!
 load_mimetypes=1 # Load Nautilus mime types for Neovim
-patched_font='Hack Nerd Font 9'
-boot_logo='ubuntu-gnome-logo.png' # Can also be ubuntu-gnome-logo.png if you like nostalgia! Comment this variable if you want to keep the stock Ubuntu logo
+patched_font='Hack Nerd Font 9' # Because only 1337 hax0rz use a font called Hack
+boot_logo='gnome-logo.png' # Can also be ubuntu-gnome-logo.png if you like nostalgia! Comment this variable if you want to keep the stock Ubuntu logo
 
 # If using 1920x1080 screen resolution, highly recommend changing the default
 # terminal window size in *-dconf.txt to 100 cols by 50 rows
-# Smaller screen resolutions should stick to 80x35 or 80x40
-
-# For minimize and maximize buttons on window title bars, add this line to *-gsettings.txt
-# org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+# Smaller screen resolutions should stick to 80x35
 
 
 apt_purges=(
 	thunderbird # I only use web-mail, so I don't need this...  Comment it out if you still connect to an IMAP email server!
 	branding-ubuntu # Why the hell is Ubuntu sticking their logo on packages they didn't make, like OpenOffice, Eclipse, and even Solitaire?!  WTF...
+	power-profiles-daemon # Gnome power profiles saves battery by just limiting your CPU all the time, TLP is smarter
 )
 
 
@@ -48,7 +46,6 @@ snap_purges=(
 
 
 ppas=(
-	ppa:linrunner/tlp # For latest versions of TLP
 	ppa:mozillateam/ppa # For a Firefox deb instead of stupid snaps
 )
 
@@ -61,9 +58,9 @@ apt_installs=(
 	gnome-software-plugin-flatpak
 	gufw
 	vlc
-	# libavcodec-extra # Is this needed?
+	libavcodec-extra
 	ipython3
-	catfish # Since file searching in Nautilus sucks...
+	catfish # Since file searching in Nautilus sucks (still can't sort search results)
 	gir1.2-gtop-2.0 # Required for the system-monitor Gnome extension
 	# libdvd-pkg # Uncomment to watch DVD movies with internal/external DVD drive
 	nautilus-dropbox
@@ -75,7 +72,7 @@ apt_installs=(
 	inkscape-open-symbols
 	gnucash
 	python3-gnucash
-	wine
+	wine # For playing Windows games
 )
 
 
@@ -85,7 +82,7 @@ flatpaks=(
 	com.github.johnfactotum.Foliate
 	org.kde.kdenlive
 	org.libretro.RetroArch
-	com.stepmania.StepMania
+	com.stepmania.StepMania # DDR uses vim arrows! Just another reason why vim > emacs
 	com.github.iwalton3.jellyfin-media-player
 )
 

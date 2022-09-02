@@ -123,7 +123,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 		echo
 		echo 'Adding PPAs...'
 		for ppa in "${ppas[@]}"; do
-			confirm_cmd "add-apt-repository $ppa"
+			confirm_cmd "add-apt-repository -y $ppa"
 		done
 	fi
 

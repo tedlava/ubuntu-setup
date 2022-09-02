@@ -12,6 +12,7 @@ org.gnome.shell favorite-apps ['firefox.desktop', 'org.gnome.Terminal.desktop', 
 org.gnome.shell enabled-extensions ['places-menu@gnome-shell-extensions.gcampax.github.com', 'sound-output-device-chooser@kgshank.net', 'RecentItems@bananenfisch.net', 'clipboard-indicator@tudmotu.com', 'system-monitor@paradoxxx.zero.gmail.com']
 org.gnome.desktop.wm.preferences action-middle-click-titlebar 'minimize'
 org.gnome.desktop.wm.preferences resize-with-right-button true
+org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 org.gnome.gedit.preferences.editor tabs-size 4
 org.gnome.gedit.preferences.editor auto-save true
 org.gnome.gedit.preferences.editor background-pattern 'grid'
@@ -29,5 +30,4 @@ org.gnome.mutter attach-modal-dialogs false
 org.gnome.nautilus.list-view use-tree-view true
 org.gnome.desktop.sound event-sounds false
 org.gnome.desktop.sound allow-volume-above-100-percent true
-org.gnome.desktop.datetime automatic-timezone true
 org.gnome.system.location enabled true
