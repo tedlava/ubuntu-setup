@@ -390,7 +390,7 @@ elif [ -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	# Create timeshift snapshot after setup script is complete
 	echo
 	echo 'Create a timeshift snapshot in case you screw up this awesome setup...'
-	confirm_cmd "sudo timeshift --create --comments 'Ubuntu ${release_name^} setup script completed' --yes"
+	confirm_cmd "sudo timeshift --create --comments 'Ubuntu GNOME (${release_name}) setup script completed' --yes"
 	echo
 
 
