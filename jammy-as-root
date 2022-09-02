@@ -168,7 +168,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo 'The script needs to reboot your system.  When it is finished rebooting,'
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
-	if [ "$GDMSESSION" != 'gnome' ] && [ "$GDMSESSION" != 'gnome-xorg' ]; then
+	if [ "$gdmsession" != 'gnome' ] && [ "$gdmsession" != 'gnome-xorg' ]; then
 		echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
 		echo
 	fi
@@ -179,7 +179,7 @@ fi
 
 
 # Make sure user is in a Gnome session instead of an Ubuntu session
-if [ "$GDMSESSION" != 'gnome' ] && [ "$GDMSESSION" != 'gnome-xorg' ]; then
+if [ "$gdmsession" != 'gnome' ] && [ "$gdmsession" != 'gnome-xorg' ]; then
 	echo
 	echo 'The next section requires you to switch to the vanilla Gnome desktop,'
 	echo 'NOT the customized Ubuntu desktop.  Please logout, click on your name,'
