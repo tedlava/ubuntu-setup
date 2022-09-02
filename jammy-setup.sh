@@ -202,7 +202,7 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 
 
 	# Make sure user is in a Gnome session instead of an Ubuntu session
-	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
+	if [ "$GDMSESSION" != 'gnome' ] && [ "$GDMSESSION" != 'gnome-xorg' ]; then
 		echo
 		echo 'The next section requires you to switch to the vanilla Gnome desktop,'
 		echo 'NOT the customized Ubuntu desktop.  Please logout, click on your name,'
