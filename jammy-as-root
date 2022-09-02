@@ -152,6 +152,8 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo
 	echo 'Installing vanilla/stock Gnome...'
 	confirm_cmd 'apt-get -y install vanilla-gnome-desktop dbus-x11'
+	# When vanilla Gnome is installed, there is no monospace font set, so the terminal becomes completely unreadable!
+    sudo -u ted dbus-launch gsettings set org.gnome.desktop.interface monospace-font-name 'Monospace Regular 11'
 	echo
 
 
