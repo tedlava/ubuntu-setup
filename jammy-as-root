@@ -63,7 +63,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo 'be taken to rollback a bad update or configuration or installation'
 	echo 'of a bad package.  Check the boxes to add monthly and weekly snapshots.'
 	echo 'Including @home in snapshots is fine since it has its own subvolume.'
-	echo 'Take an initial snapshot and comment it with \"Ubuntu (${release_name}) installed\",'
+	echo "Take an initial snapshot, comment it with \"Ubuntu (${release_name}) installed\","
 	echo 'just in case you screw something up in the rest of the installation... ;)'
 	echo 'After it is done snapshotting the system, please close the timeshift window.'
 	echo
@@ -111,7 +111,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 		for snap in "${snap_purges[@]}"; do
 			confirm_cmd "snap remove --purge $snap"
 		done
-		confirm_cmd 'apt-get -y purge snapd gnome-software-plugin-snap'
+		confirm_cmd 'apt-get -y purge snapd'
 		confirm_cmd "rm -rf /var/cache/snapd/ $home/snap" # What about /snap and /var/snap ???
 		confirm_cmd 'echo -e "Package: snapd\\nPin: release a=*\\nPin-Priority: -10" > /etc/apt/preferences.d/nosnap.pref'
 		confirm_cmd 'echo -e "Package: firefox*\\nPin: release o=Ubuntu*\\nPin-Priority: -1" > /etc/apt/preferences.d/firefox-no-snap.pref'
@@ -151,7 +151,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	# Install vanilla Gnome
 	echo
 	echo 'Installing vanilla/stock Gnome...'
-	confirm_cmd 'apt-get -y install vanilla-gnome-desktop'
+	confirm_cmd 'apt-get -y install vanilla-gnome-desktop dbus-x11'
 	echo
 
 
@@ -178,12 +178,28 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 fi
 
 
+# Make sure user is in a Gnome session instead of an Ubuntu session
+if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
+	echo
+	echo 'The next section requires you to switch to the vanilla Gnome desktop,'
+	echo 'NOT the customized Ubuntu desktop.  Please logout, click on your name,'
+	echo 'then click on the gear icon (bottom right corner) to change the desktop'
+	echo 'session that you will log into.'
+	echo
+	echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
+	echo
+	echo 'When you log back in, please re-run the script to continue from here...'
+	echo
+	exit
+fi
+
+
 # Inhibit suspend if on AC power but not logged in
 if [ -n "$gdm_inhibit_ac" ]; then
 	echo
 	echo 'Setting up gdm to stay on when plugged in, but not logged in.'
 	echo 'Will still auto-suspend if on battery power...'
-	confirm_cmd "sudo -u gdm gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
+	confirm_cmd "sudo -u gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
 	echo
 fi
 
@@ -249,7 +265,7 @@ fi
 
 
 # Create timeshift snapshot after installing vanilla Gnome
-confirm_cmd "timeshift --create --comments 'Ubuntu GNOME (${release_name^}) installed' --yes"
+confirm_cmd "timeshift --create --comments 'Ubuntu GNOME (${release_name}) installed' --yes"
 
 
 # Add private window to context menu for Firefox-ESR launcher

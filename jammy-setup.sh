@@ -185,10 +185,12 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 
 
 		# Disable suspend while on AC power
-		echo
-		echo 'Disable suspend while on AC power...'
-		confirm_cmd "gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
-		# touch "$status_dir/disabled_ac_suspend" # The above should happen no matter what, to prevent the computer from suspending when downloading/installing lots of packages!
+		if [ ! -f "$status_dir/disabled_ac_suspend" ]; then
+			echo
+			echo 'Disable suspend while on AC power...'
+			confirm_cmd "gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
+			touch "$status_dir/disabled_ac_suspend"
+		fi
 
 
 		# Run commands as root (with sudo)
@@ -199,14 +201,10 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	fi
 
 
-	# Make sure user is in to a Gnome session instead of an Ubuntu session
-	#     If you like Ubuntu's customizations to Gnome, then feel free to
-	#     comment out or remove this next session to attempt to install the
-	#     following Gnome settings under Ubuntu's Gnome.  I have not tested
-	#     this, nor will I test it...  But you can!
+	# Make sure user is in a Gnome session instead of an Ubuntu session
 	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
 		echo
-		echo 'The next session requires you to switch to the vanilla Gnome desktop,'
+		echo 'The next section requires you to switch to the vanilla Gnome desktop,'
 		echo 'NOT the customized Ubuntu desktop.  Please logout, click on your name,'
 		echo 'then click on the gear icon (bottom right corner) to change the desktop'
 		echo 'session that you will log into.'

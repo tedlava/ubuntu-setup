@@ -18,7 +18,7 @@ install_windscribe=1 # VPN with slick Linux GUI!
 # priv_firefox_launcher=1 # Add private window to context menu for Firefox-ESR launcher
 load_mimetypes=1 # Load Nautilus mime types for Neovim
 patched_font='Hack Nerd Font 9'
-boot_logo='gnome-logo.png' # Can also be ubuntu-gnome-logo.png if you like nostalgia! Comment this variable if you want to keep the stock Ubuntu logo
+boot_logo='ubuntu-gnome-logo.png' # Can also be ubuntu-gnome-logo.png if you like nostalgia! Comment this variable if you want to keep the stock Ubuntu logo
 
 # If using 1920x1080 screen resolution, highly recommend changing the default
 # terminal window size in *-dconf.txt to 100 cols by 50 rows
@@ -55,7 +55,7 @@ ppas=(
 
 
 apt_installs=(
-	firefox
+	# firefox # It looks like this is a dependency of vanilla-gnome-desktop, so it gets installed automatically
 	openssh-server
 	tlp
 	tlp-rdw
