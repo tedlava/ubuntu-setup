@@ -219,6 +219,15 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	fi
 
 
+	# Open display settings to possibly change scaling
+	echo
+	echo 'Newer computers with HiDPI displays may need to adjust scaling settings. When'
+	echo 'you are finished, close the window to continue with the setup script...'
+	echo
+	read -p 'Press ENTER to open Display Settings...'
+	confirm_cmd 'gnome-control-center display'
+	
+
 	# Install Gnome extensions
 	echo
 	if [ -n "${extension_urls[*]}" ]; then
