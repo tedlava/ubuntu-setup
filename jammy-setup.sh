@@ -80,7 +80,7 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 
-while getopts ':hie' opt; do
+while getopts ':hi' opt; do
 	case $opt in
 	h)
 		echo
@@ -94,12 +94,6 @@ while getopts ':hie' opt; do
 		echo 'running EVERY SINGLE command!'
 		echo
 		interactive=1
-		;;
-	e)
-		echo
-		echo 'Skip to Gnome extensions!'
-		echo
-		skip_to_ext=1
 		;;
 	\?)
 		echo

@@ -15,7 +15,6 @@ ssd=1 # Uncomment if installed to an SSD
 gdm_inhibit_ac=1 # Inhibit suspend if on AC power but not logged (for servers and SSH access)
 ignore_lid_switch=1 # Ignore suspend on closing lid tweak
 install_windscribe=1 # VPN with slick Linux GUI!
-# priv_firefox_launcher=1 # Add private window to context menu for Firefox-ESR launcher
 load_mimetypes=1 # Load Nautilus mime types for Neovim
 patched_font='Hack Nerd Font 9'
 boot_logo='ubuntu-gnome-logo.png' # Can also be ubuntu-gnome-logo.png if you like nostalgia! Comment this variable if you want to keep the stock Ubuntu logo

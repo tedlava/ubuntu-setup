@@ -269,12 +269,3 @@ fi
 # Create timeshift snapshot after installing vanilla Gnome
 confirm_cmd "timeshift --create --comments 'Ubuntu GNOME (${release_name}) installed' --yes"
 
-
-# Add private window to context menu for Firefox-ESR launcher
-# if [ -n "$priv_firefox_launcher" ]; then
-# 	echo
-# 	echo 'Adding private window to context menu for Firefox-ESR launcher...'
-# 	confirm_cmd 'echo -e "Actions=new-window;new-private-window;\\n\\n[Desktop Action new-window]\\nName=Open a New Window\\nExec=/usr/lib/firefox-esr/firefox-esr -new-window\\n\\n[Desktop Action new-private-window]\\nName=Open a New Private Window\\nExec=/usr/lib/firefox-esr/firefox-esr -private-window\\n" >> /usr/share/applications/firefox-esr.desktop'
-# 	echo
-# fi
-
