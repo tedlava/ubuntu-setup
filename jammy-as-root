@@ -168,7 +168,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo 'The script needs to reboot your system.  When it is finished rebooting,'
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
-	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
+	if [ "$GDMSESSION" != 'gnome' ] && [ "$GDMSESSION" != 'gnome-xorg' ]; then
 		echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
 		echo
 	fi
