@@ -136,13 +136,6 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo
 
 
-	# Install vanilla Gnome
-	echo
-	echo 'Installing vanilla/stock Gnome...'
-	confirm_cmd 'apt-get -y install vanilla-gnome-desktop'
-	echo
-
-
 	# Change Plymouth boot logo
 	if [ -n "$boot_logo" ]; then
 		echo
@@ -153,6 +146,13 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 		confirm_cmd "cp -av $script_dir/$boot_logo /usr/share/plymouth/themes/spinner/watermark.png"
 		echo
 	fi
+
+
+	# Install vanilla Gnome
+	echo
+	echo 'Installing vanilla/stock Gnome...'
+	confirm_cmd 'apt-get -y install vanilla-gnome-desktop'
+	echo
 
 
 	# Startup driver manager to install firmware and other drivers (such as NVIDIA)
@@ -183,7 +183,7 @@ if [ -n "$gdm_inhibit_ac" ]; then
 	echo
 	echo 'Setting up gdm to stay on when plugged in, but not logged in.'
 	echo 'Will still auto-suspend if on battery power...'
-	confirm_cmd "sudo -u Debian-gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
+	confirm_cmd "sudo -u gdm gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
 	echo
 fi
 

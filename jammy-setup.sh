@@ -193,6 +193,9 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 
 		# Run commands as root (with sudo)
 		sudo home="$HOME" interactive="$interactive" bash "$release_name"-as-root
+		if [ "$?" != '0' ]; then
+			exit
+		fi
 	fi
 
 
