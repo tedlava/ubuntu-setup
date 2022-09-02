@@ -49,8 +49,9 @@ function contains {
 }
 
 
-# Remove old configuration in .dotfiles
-if [ ! -f "$status_dir/dotfiles_removed" ]; then
+if [ ! -f "$status_dir/drivers_installed" ]; then
+
+	# Remove old configuration in .dotfiles
 	echo
 	read -p 'Do you want to delete all old .dotfiles from your home directory? [Y/n] '
 	if [ -z "$REPLY" ] || [ "${REPLY,}" == 'y' ]; then
@@ -60,74 +61,13 @@ if [ ! -f "$status_dir/dotfiles_removed" ]; then
 		reboot=1
 	fi
 	echo
-fi
 
 
-# Disable suspend while on AC power
-if [ ! -f "$status_dir/disabled_ac_suspend" ]; then
+	# Disable suspend while on AC power
 	echo
 	echo 'Disable suspend while on AC power...'
 	confirm_cmd "sudo -u $SUDO_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
 	sudo -u $SUDO_USER touch "$status_dir/disabled_ac_suspend"
-fi
-
-
-if [ ! -f "$status_dir/drivers_installed" ]; then
-
-	# SSD
-	if [ -n "$ssd" ]; then
-		echo
-		echo 'SSD setup...'
-		confirm_cmd 'fstrim -v /'
-		confirm_cmd 'fstrim -v /home'
-		confirm_cmd 'echo -e "\\n#Swappiness\\nvm.swappiness=1\\n" >> /etc/sysctl.conf'
-	fi
-	echo
-
-
-	# Purge unwanted packages
-	echo
-	echo 'Removing unwanted packages from the base installation...'
-	confirm_cmd "apt-get -y purge ${apt_purges[@]}"
-	confirm_cmd 'apt-get -y autopurge'
-	echo
-
-
-	# Purge and disable snap
-	echo
-	echo 'Removing snap packages and preventing reinstallation of snapd...'
-	confirm_cmd 'systemctl disable snapd.service'
-	confirm_cmd 'systemctl disable snapd.socket'
-	confirm_cmd 'systemctl disable snapd.seeded.service'
-	# Remove "extra" snaps (possibly installed by the user)
-	snaps=($(snap list | awk '{print $1}' | tail -n $(($(snap list | wc -l) - 1))))
-	for snap in "${snaps[@]}"; do
-		if [ -z "$(contains snap_purges snap)" ]; then
-			confirm_cmd "snap remove --purge $snap"
-		fi
-	done
-	# Remove system-installed snaps
-	for snap in "${snap_purges[@]}"; do
-		confirm_cmd "snap remove --purge $snap"
-	done
-	confirm_cmd 'apt-get -y purge snapd gnome-software-plugin-snap'
-	confirm_cmd "rm -rf /var/cache/snapd/ $home/snap" # What about /snap and /var/snap ???
-	confirm_cmd 'echo -e "Package: snapd\\nPin: release a=*\\nPin-Priority: -10" > /etc/apt/preferences.d/nosnap.pref'
-	confirm_cmd 'echo -e "Package: firefox*\\nPin: release o=Ubuntu*\\nPin-Priority: -1" > /etc/apt/preferences.d/firefox-no-snap.pref'
-
-
-	# Adding PPAs
-	for ppa in "${ppas[@]}"; do
-		confirm_cmd "add-apt-repository $ppa"
-	done
-
-
-	# Update/upgrade packages
-	echo
-	echo 'Updating apt cache and upgrading current packages...'
-	confirm_cmd 'apt-get update'
-	confirm_cmd 'apt-get -y upgrade'
-	echo
 
 
 	# Install basic utilities
@@ -141,15 +81,78 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo
 	echo 'Timeshift must be set up through the GUI before system snapshots can'
 	echo 'be taken to rollback a bad update or configuration or installation'
-	echo 'of a bad package.  Only use timeshift to snapshot the @ subvolume.'
-	echo 'Check the boxes to add monthly and weekly snapshots as well.  All'
-	echo 'other default settings should be sufficient.  Take an initial snapshot'
-	echo "and give it a title like \"Ubuntu ${release_name^} installed\", just in case you"
-	echo 'screw something up in the rest of the installation... ;)  After it is'
-	echo 'done snapshotting the system, you may close the timeshift window.'
+	echo 'of a bad package.  Check the boxes to add monthly and weekly snapshots.'
+	echo 'Including @home in snapshots is fine since it has its own subvolume.'
+	echo 'Take an initial snapshot and comment it with \"Ubuntu ${release_name^} installed\",'
+	echo 'just in case you screw something up in the rest of the installation... ;)'
+	echo 'After it is done snapshotting the system, please close the timeshift window.'
 	echo
 	read -p 'Press ENTER to open timeshift...'
 	confirm_cmd 'timeshift-launcher'
+	echo
+
+
+	# SSD
+	if [ -n "$ssd" ]; then
+		echo
+		echo 'SSD setup...'
+		confirm_cmd 'fstrim -v /'
+		confirm_cmd 'fstrim -v /home'
+		confirm_cmd 'echo -e "\\n#Swappiness\\nvm.swappiness=1\\n" >> /etc/sysctl.conf'
+	fi
+	echo
+
+
+	# Purge unwanted packages
+	if [ -n "${apt_purges[*]}" ]; then
+		echo
+		echo 'Removing unwanted packages from the base installation...'
+		confirm_cmd "apt-get -y purge ${apt_purges[@]}"
+		confirm_cmd 'apt-get -y autopurge'
+		echo
+	fi
+
+
+	# Purge and disable snap
+	if [ -n "${snap_purges[*]}" ]; then
+		echo
+		echo 'Removing snap packages and preventing reinstallation of snapd...'
+		confirm_cmd 'systemctl disable snapd.service'
+		confirm_cmd 'systemctl disable snapd.socket'
+		confirm_cmd 'systemctl disable snapd.seeded.service'
+		# Remove "extra" snaps (possibly installed by the user)
+		snaps=($(snap list | awk '{print $1}' | tail -n $(($(snap list | wc -l) - 1))))
+		for snap in "${snaps[@]}"; do
+			if [ -z "$(contains snap_purges snap)" ]; then
+				confirm_cmd "snap remove --purge $snap"
+			fi
+		done
+		# Remove system-installed snaps
+		for snap in "${snap_purges[@]}"; do
+			confirm_cmd "snap remove --purge $snap"
+		done
+		confirm_cmd 'apt-get -y purge snapd gnome-software-plugin-snap'
+		confirm_cmd "rm -rf /var/cache/snapd/ $home/snap" # What about /snap and /var/snap ???
+		confirm_cmd 'echo -e "Package: snapd\\nPin: release a=*\\nPin-Priority: -10" > /etc/apt/preferences.d/nosnap.pref'
+		confirm_cmd 'echo -e "Package: firefox*\\nPin: release o=Ubuntu*\\nPin-Priority: -1" > /etc/apt/preferences.d/firefox-no-snap.pref'
+	fi
+
+
+	# Adding PPAs
+	if [ -n "${ppas[*]}" ]; then
+		echo
+		echo 'Adding PPAs...'
+		for ppa in "${ppas[@]}"; do
+			confirm_cmd "add-apt-repository $ppa"
+		done
+	fi
+
+
+	# Update/upgrade packages
+	echo
+	echo 'Updating apt cache and upgrading current packages...'
+	confirm_cmd 'apt-get update'
+	confirm_cmd 'apt-get -y upgrade'
 	echo
 
 
@@ -172,14 +175,10 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo 'The script needs to reboot your system.  When it is finished rebooting,'
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
-	# if [ -n "$wayland" ]; then
-	# 	echo
-	# 	echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
-	# 	echo
-	# fi
-	echo
-	echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
-	echo
+	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
+		echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
+		echo
+	fi
 	read -p 'Press ENTER to reboot...'
 	systemctl reboot
 	sleep 5

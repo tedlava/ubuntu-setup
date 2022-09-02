@@ -165,13 +165,6 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 		fi
 
 
-		# TODO nvidia drivers should be installed with the Ubuntu's driver manager, it's just easier... If NOT installing NVIDIA driver, check for Wayland (nvidia-driver package will disable Wayland, at least for now)
-		# Wayland also finally allows screen sharing for video conferencing now!  So maybe it's finally a viable option?
-		# if [ -z "$(echo "${apt_installs[@]}" | grep nvidia)" ] && [ -n "$WAYLAND_DISPLAY" ]; then
-		# 	wayland=1
-		# fi
-
-
 		# Create temporary downloads directory
 		if [ ! -d "$script_dir/downloads" ]; then
 			echo
@@ -181,29 +174,51 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 
 
 		# Run commands as root (with sudo)
-		sudo home="$HOME" interactive="$interactive" wayland="$wayland" bash "$release_name"-as-root
+		sudo home="$HOME" interactive="$interactive" bash "$release_name"-as-root
+	fi
+
+
+	# Make sure user is in to a Gnome session instead of an Ubuntu session
+	#     If you like Ubuntu's customizations to Gnome, then feel free to
+	#     comment out or remove this next session to attempt to install the
+	#     following Gnome settings under Ubuntu's Gnome.  I have not tested
+	#     this, nor will I test it...  But you can!
+	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
+		echo
+		echo 'The next session requires you to switch to the vanilla Gnome desktop,'
+		echo 'NOT the customized Ubuntu desktop.  Please logout, click on your name,'
+		echo 'then click on the gear icon (bottom right corner) to change the desktop'
+		echo 'session that you will log into.'
+		echo
+		echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
+		echo
+		echo 'When you log back in, please re-run the script to continue from here...'
+		echo
+		exit
 	fi
 
 
 	# Install Gnome extensions
 	echo
-	echo 'Installing Gnome extensions...'
-	echo
-	gnome_ver=$(gnome-shell --version | cut -d' ' -f3)
-	base_url='https://extensions.gnome.org'
-	for extension in "${extension_urls[@]}"; do
-		ext_uuid=$(curl -s $extension | grep -oP 'data-uuid="\K[^"]+')
-		info_url="$base_url/extension-info/?uuid=$ext_uuid&shell_version=$gnome_ver"
-		download_url="$base_url$(curl -s "$info_url" | sed -e 's/.*"download_url": "\([^"]*\)".*/\1/')"
-		confirm_cmd "curl -L '$download_url' > '$script_dir/downloads/$ext_uuid.zip'"
-		ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_uuid"
-		confirm_cmd "gnome-extensions install $script_dir/downloads/$ext_uuid.zip"
-		# Move all indicators to the right of the system-monitor indicator on the panel
-		if [ -z $(echo "$ext_uuid" | grep 'system-monitor') ]; then
-			confirm_cmd "sed -i 's/\(Main.panel.addToStatusArea([^,]*,[^,]*\)\(, [0-9]\)\?);/\1, 2);/' $ext_dir/extension.js"
-		fi
-	done
-	echo
+	if [ -n "${extension_urls[*]}" ]; then
+		echo 'Installing Gnome extensions...'
+		echo
+		gnome_ver=$(gnome-shell --version | cut -d' ' -f3)
+		base_url='https://extensions.gnome.org'
+		for extension in "${extension_urls[@]}"; do
+			ext_uuid=$(curl -s $extension | grep -oP 'data-uuid="\K[^"]+')
+			info_url="$base_url/extension-info/?uuid=$ext_uuid&shell_version=$gnome_ver"
+			download_url="$base_url$(curl -s "$info_url" | sed -e 's/.*"download_url": "\([^"]*\)".*/\1/')"
+			confirm_cmd "curl -L '$download_url' > '$script_dir/downloads/$ext_uuid.zip'"
+			ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_uuid"
+			confirm_cmd "gnome-extensions install $script_dir/downloads/$ext_uuid.zip"
+			# Move all indicators to the right of the system-monitor indicator on the panel
+			if [ -z $(echo "$ext_uuid" | grep 'system-monitor') ]; then
+				confirm_cmd "sed -i 's/\(Main.panel.addToStatusArea([^,]*,[^,]*\)\(, [0-9]\)\?);/\1, 2);/' $ext_dir/extension.js"
+			fi
+		done
+		echo
+	fi
 
 
 	# Set up fonts
@@ -219,12 +234,14 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	echo
 	echo "Applying $release_name-gsettings.txt to Gnome..."
 	echo
+	# confirm_cmd in while loop won't work since it also uses 'read', so
+	# confirmation must be asked beforehand if $interactive is true
 	if [ -n "$interactive" ]; then
 		echo -e "Load all settings from gsettings.txt using:\n    $ gsettings set \$schema \$key \"\$val\""
 		read -p 'Proceed? [Y/n] '
 	fi
 	if [ -z "$interactive" ] || [ -z "$REPLY" ] || [ "${REPLY,}" == 'y' ]; then
-		while read -r schema key val; do # confirm_cmd in while loop won't work since it also uses 'read'
+		while read -r schema key val; do
 			echo -e "\nExecuting command...\n    $ gsettings set $schema $key \"$val\"\n"
 			gsettings set $schema $key "$val"
 		done < "$gsettings_path"
@@ -235,7 +252,6 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	# Load dconf settings
 	echo
 	echo "Applying $release_name-dconf.txt to Gnome..."
-	echo
 	confirm_cmd "dconf load / < $dconf_settings_path"
 	echo
 
@@ -265,7 +281,6 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	confirm_cmd "ln -s $HOME/dotfiles/neovim-config/init.vim $HOME/.config/nvim/"
 	echo
 	echo 'Installing vim-plug into Neovim...'
-	echo
 	confirm_cmd "sh -c 'curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'"
 	echo
 	echo 'About to install Neovim plugins.  When Neovim is finished, please exit'
@@ -281,7 +296,6 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	# Load Nautilus mime types for Neovim
 	echo
 	echo 'Loading Nautilus mime types (open all text files with Neovim)...'
-	echo
 	confirm_cmd "cp -av mimeapps.list $HOME/.config/"
 	echo
 
@@ -292,13 +306,14 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
 	touch "$status_dir/setup_part_1"
-	# if [ -n "$wayland" ]; then
-	# 	echo
-	# 	echo '    *** Please switch to "Gnome on Xorg" when you login next time!'
-	# 	echo
-	# fi
+	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
+		echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
+		echo
+	fi
 	read -p 'Press ENTER to reboot...'
-	# Load patched monospace font immediately before reboot since it makes the terminal difficult to read
+
+
+	# Load patched font JUST before reboot since it makes the terminal difficult to read
 	if [ -n "$patched_font" ]; then
 		confirm_cmd "gsettings set org.gnome.desktop.interface monospace-font-name '$patched_font'"
 	fi
@@ -308,13 +323,15 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 
 elif [ -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; then
 	# Enable Gnome extensions
-	echo
-	echo 'Enabling recently installed Gnome extensions...'
-	echo
-	for extension in "${extension_urls[@]}"; do
-		ext_uuid=$(curl -s $extension | grep -oP 'data-uuid="\K[^"]+')
-		confirm_cmd "gnome-extensions enable ${ext_uuid}"
-	done
+	if [ -n "${extension_urls[*]}" ]; then
+		echo
+		echo 'Enabling recently installed Gnome extensions...'
+		echo
+		for extension in "${extension_urls[@]}"; do
+			ext_uuid=$(curl -s $extension | grep -oP 'data-uuid="\K[^"]+')
+			confirm_cmd "gnome-extensions enable ${ext_uuid}"
+		done
+	fi
 
 
 	# Install flatpaks
