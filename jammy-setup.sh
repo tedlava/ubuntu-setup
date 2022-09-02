@@ -173,6 +173,24 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 		fi
 
 
+		# Remove old configuration in .dotfiles
+		if [ -n "$rm_dotfiles" ] && [ ! -f "$status_dir/dotfiles_removed" ]; then
+			echo
+			echo 'Removing old .dotfiles (from prior Linux installation)...'
+			confirm_cmd "sudo rm -rf $HOME/.*"
+			confirm_cmd "cp -av /etc/skel/. $HOME/"
+			touch "$status_dir/dotfiles_removed"
+			echo
+		fi
+
+
+		# Disable suspend while on AC power
+		echo
+		echo 'Disable suspend while on AC power...'
+		confirm_cmd "gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
+		# touch "$status_dir/disabled_ac_suspend" # The above should happen no matter what, to prevent the computer from suspending when downloading/installing lots of packages!
+
+
 		# Run commands as root (with sudo)
 		sudo home="$HOME" interactive="$interactive" bash "$release_name"-as-root
 	fi
@@ -306,10 +324,6 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	echo 'please re-run the same script and it will resume from where it left off.'
 	echo
 	touch "$status_dir/setup_part_1"
-	if [ "$GDMSESSION" != 'gnome' ] || [ "$GDMSESSION" != 'gnome-xorg' ]; then
-		echo '    *** Please switch to "Gnome" or "Gnome on Xorg" when you login next time!'
-		echo
-	fi
 	read -p 'Press ENTER to reboot...'
 
 

@@ -9,6 +9,7 @@
 
 
 status_dir='status' # Holds script status between reboots, can be absolute path or relative (to script dir)
+rm_dotfiles=1 # Remove all old .dotfiles (from prior Linux distributions)
 GRUB_CMDLINE_LINUX_DEFAULT='quiet splash' # To be copied into /etc/default/grub, parms like "pci=noaer" go here
 ssd=1 # Uncomment if installed to an SSD
 gdm_inhibit_ac=1 # Inhibit suspend if on AC power but not logged (for servers and SSH access)
@@ -54,9 +55,10 @@ ppas=(
 
 
 apt_installs=(
+	firefox
 	openssh-server
-	tlp # Newer version in backports for newer kernels
-	tlp-rdw # Newer version in backports for newer kernels
+	tlp
+	tlp-rdw
 	flatpak
 	gnome-software-plugin-flatpak
 	gufw

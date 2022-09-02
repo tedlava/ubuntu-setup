@@ -50,30 +50,10 @@ function contains {
 
 
 if [ ! -f "$status_dir/drivers_installed" ]; then
-
-	# Remove old configuration in .dotfiles
-	echo
-	read -p 'Do you want to delete all old .dotfiles from your home directory? [Y/n] '
-	if [ -z "$REPLY" ] || [ "${REPLY,}" == 'y' ]; then
-		confirm_cmd "rm -rf $home/.*"
-		confirm_cmd "sudo -u $SUDO_USER cp -av /etc/skel/. $home/"
-		sudo -u $SUDO_USER touch "$status_dir/dotfiles_removed"
-		reboot=1
-	fi
-	echo
-
-
-	# Disable suspend while on AC power
-	echo
-	echo 'Disable suspend while on AC power...'
-	confirm_cmd "sudo -u $SUDO_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'"
-	sudo -u $SUDO_USER touch "$status_dir/disabled_ac_suspend"
-
-
 	# Install basic utilities
 	echo
-	echo 'Installing git, curl, timeshift, and firefox (deb)...'
-	confirm_cmd 'apt-get -y install git curl timeshift firefox'
+	echo 'Installing git, curl, and timeshift...'
+	confirm_cmd 'apt-get -y install git curl timeshift'
 	echo
 
 
@@ -83,7 +63,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo 'be taken to rollback a bad update or configuration or installation'
 	echo 'of a bad package.  Check the boxes to add monthly and weekly snapshots.'
 	echo 'Including @home in snapshots is fine since it has its own subvolume.'
-	echo 'Take an initial snapshot and comment it with \"Ubuntu ${release_name^} installed\",'
+	echo 'Take an initial snapshot and comment it with \"Ubuntu (${release_name}) installed\",'
 	echo 'just in case you screw something up in the rest of the installation... ;)'
 	echo 'After it is done snapshotting the system, please close the timeshift window.'
 	echo
@@ -198,10 +178,6 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 fi
 
 
-# Create timeshift snapshot after booting into new release for the first time
-confirm_cmd "timeshift --create --comments 'Ubuntu ${release_name^} installed' --yes"
-
-
 # Inhibit suspend if on AC power but not logged in
 if [ -n "$gdm_inhibit_ac" ]; then
 	echo
@@ -222,6 +198,7 @@ if [ -n "$install_windscribe" ]; then
 fi
 
 
+# Install apt_installs
 if [ -n "${apt_installs[*]}" ]; then
 	echo
 	echo 'Installing apt packages...'
@@ -239,6 +216,7 @@ if [ -n "$(contains apt_installs libdvd-pkg)" ]; then
 fi
 
 
+# Check if there are extra kernel parameters needed for grub that need to be loaded
 if [ "$GRUB_CMDLINE_LINUX_DEFAULT" != 'quiet splash' ]; then
 	echo
 	echo 'Setting up grub...'
@@ -268,6 +246,10 @@ if [ -n "$(contains apt_installs gufw)" ]; then
 	confirm_cmd 'gufw'
 	echo
 fi
+
+
+# Create timeshift snapshot after installing vanilla Gnome
+confirm_cmd "timeshift --create --comments 'Ubuntu GNOME (${release_name^}) installed' --yes"
 
 
 # Add private window to context menu for Firefox-ESR launcher
