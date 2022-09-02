@@ -23,7 +23,7 @@ org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 org.gnome.desktop.interface clock-show-weekday true
 org.gnome.desktop.interface clock-show-seconds true
 org.gnome.desktop.interface clock-show-date true
-org.gnome.desktop.interface scaling-factor 1
+org.gnome.desktop.interface icon-theme 'Adwaita'
 org.gnome.desktop.interface show-battery-percentage true
 org.gnome.mutter attach-modal-dialogs false
 org.gnome.nautilus.list-view use-tree-view true
