@@ -53,7 +53,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	# Install basic utilities
 	echo
 	echo 'Installing git, curl, and timeshift...'
-	confirm_cmd 'apt-get -y install git curl timeshift'
+	confirm_cmd 'apt-get update && apt-get -y install git curl timeshift'
 	echo
 
 
