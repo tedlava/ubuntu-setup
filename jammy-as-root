@@ -103,7 +103,7 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 		# Remove "extra" snaps (possibly installed by the user)
 		snaps=($(snap list | awk '{print $1}' | tail -n $(($(snap list | wc -l) - 1))))
 		for snap in "${snaps[@]}"; do
-			if [ -z "$(contains snap_purges snap)" ]; then
+			if [ -z "$(contains snap_purges $snap)" ]; then
 				confirm_cmd "snap remove --purge $snap"
 			fi
 		done
