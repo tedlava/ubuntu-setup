@@ -160,6 +160,19 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo
 	echo 'Installing vanilla/stock Gnome...'
 	confirm_cmd 'apt-get -y install vanilla-gnome-desktop'
+	echo
+
+
+	# Change Plymouth boot logo
+	if [ -n "$boot_logo" ]; then
+		echo
+		echo 'Change boot up logos...'
+		confirm_cmd 'mv /usr/share/plymouth/ubuntu-logo.png /usr/share/plymouth/ubuntu-logo.png.bak # Backup original Ubuntu logo'
+		confirm_cmd "cp -av $script_dir/$boot_logo /usr/share/plymouth/ubuntu-logo.png"
+		confirm_cmd 'mv /usr/share/plymouth/themes/spinner/watermark.png /usr/share/plymouth/themes/spinner/watermark.png.bak # Backup original Ubuntu logo'
+		confirm_cmd "cp -av $script_dir/$boot_logo /usr/share/plymouth/themes/spinner/watermark.png"
+		echo
+	fi
 
 
 	# Startup driver manager to install firmware and other drivers (such as NVIDIA)
