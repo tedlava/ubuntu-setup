@@ -29,7 +29,7 @@ boot_logo='ubuntu-gnome-logo.png' # Can also be ubuntu-gnome-logo.png if you lik
 
 
 apt_purges=(
-	thunderbird
+	thunderbird # I only use web-mail, so I don't need this...  Comment it out if you still connect to an IMAP email server!
 	branding-ubuntu # Why the hell is Ubuntu sticking their logo on packages they didn't make, like OpenOffice, Eclipse, and even Solitaire?!  WTF...
 )
 
@@ -55,7 +55,6 @@ ppas=(
 
 
 apt_installs=(
-	# firefox # It looks like this is a dependency of vanilla-gnome-desktop, so it gets installed automatically
 	openssh-server
 	tlp
 	tlp-rdw

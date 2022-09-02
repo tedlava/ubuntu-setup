@@ -225,6 +225,14 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	read -p 'Press ENTER to open Display Settings...'
 	confirm_cmd 'gnome-control-center display'
 	
+	
+	# Change default apps (VLC instead of Videos/Totem)
+	echo
+	echo 'The default Gnome Videos player never seems to do very well.  Switch the default'
+	echo 'video player to VLC, then close the window to continue the setup script...'
+	echo
+	read -p 'Press ENTER to open Display Settings...'
+	confirm_cmd 'gnome-control-center default-apps'
 
 	# Install Gnome extensions
 	echo
@@ -401,13 +409,11 @@ elif [ -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	echo
 	echo '    - Set user picture'
 	echo '    - Connect to online accounts'
-	echo '    - Run "sudo dmesg" and look for RED text, which may require more firmware'
-	echo '          than what was installed through this script'
 	echo '    - Set up Firefox:'
-	echo '          - about:config >> media.webrtc.hw.h264.enabled = true'
-	echo '                (for HW acceleration during video conferencing)'
 	echo '          - Set up Firefox Sync, customize toolbar, restore synced tabs, etc.'
 	echo '          - Open Settings: DRM enabled, search with DuckDuckGo, remove Bing'
+	echo '          - about:config >> media.webrtc.hw.h264.enabled = true'
+	echo '                (for HW acceleration during video conferencing)'
 	if [ -n "$ssd" ]; then
 		echo '          * For SSD:'
 		echo '                - about:config >> browser.cache.disk.enable = false'
