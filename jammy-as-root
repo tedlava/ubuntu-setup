@@ -157,6 +157,17 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo
 
 
+	# For better performance on Ubuntu 22.04
+	# https://discourse.ubuntu.com/t/why-ubuntu-22-04-is-so-fast-and-how-to-make-it-faster/30369
+	if [ -n "${environment[*]}" ]; then
+		echo
+		echo 'Adding extra environment variables for better performance on Ubuntu...'
+		for env in "${environment[@]}"; do
+			confirm_cmd "echo \"$env\" >> /etc/environment"
+		done
+	fi
+
+
 	# Startup driver manager to install firmware and other drivers (such as NVIDIA)
 	echo
 	echo 'Please install any recommended firmware and drivers in the Driver Manager...'

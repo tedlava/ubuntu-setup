@@ -100,3 +100,10 @@ extension_urls=(
 	https://extensions.gnome.org/extension/3010/system-monitor-next/
 )
 
+
+environment=(
+	# Don't triple-buffer the mouse pointer (as per Ubuntu docs for more responsive mouse)
+	MUTTER_DEBUG_ENABLE_ATOMIC_KMS=0 # Ubuntu 22.04
+	# MUTTER_DEBUG_FORCE_KMS_MODE=simple # Ubuntu 22.10
+	MOZ_ENABLE_WAYLAND=1 # Smoother scrolling with Firefox on Wayland
+)
