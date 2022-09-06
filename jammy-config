@@ -51,21 +51,27 @@ ppas=(
 
 
 apt_installs=(
+	# OS packages
 	openssh-server
 	tlp
 	tlp-rdw
 	flatpak
 	gnome-software-plugin-flatpak
 	gufw
-	vlc
-	libavcodec-extra
-	ipython3
 	catfish # Since file searching in Nautilus sucks (still can't sort search results)
 	gir1.2-gtop-2.0 # Required for the system-monitor Gnome extension
+	vlc # Totem often doesn't work; VLC can fix subtitle timing or step frame-by-frame
+	libavcodec-extra
 	# libdvd-pkg # Uncomment to watch DVD movies with internal/external DVD drive
 	nautilus-dropbox
+
+	# Development packages
 	neovim
 	python3-neovim
+	ipython3
+	python3-venv
+
+	# Apps
 	gimp
 	gimp-data-extras
 	inkscape
