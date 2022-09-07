@@ -245,15 +245,13 @@ if [ -n "$(contains apt_installs libdvd-pkg)" ]; then
 fi
 
 
-# Check if there are extra kernel parameters needed for grub that need to be loaded
-if [ "$GRUB_CMDLINE_LINUX_DEFAULT" != 'quiet splash' ]; then
-	echo
-	echo 'Setting up grub...'
-	confirm_cmd "sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT.*/GRUB_CMDLINE_LINUX_DEFAULT=\"$GRUB_CMDLINE_LINUX_DEFAULT\"/' /etc/default/grub"
-	confirm_cmd 'sed -i "s/\\(GRUB_TIMEOUT=.*\\)/\\1\\nGRUB_RECORDFAIL_TIMEOUT=5/" /etc/default/grub'
-	confirm_cmd 'update-grub'
-	echo
-fi
+# Update grub
+echo
+echo 'Setting up grub...'
+confirm_cmd "sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT.*/GRUB_CMDLINE_LINUX_DEFAULT=\"$GRUB_CMDLINE_LINUX_DEFAULT\"/' /etc/default/grub"
+confirm_cmd 'sed -i "s/\\(GRUB_TIMEOUT=.*\\)/\\1\\nGRUB_RECORDFAIL_TIMEOUT=5/" /etc/default/grub'
+confirm_cmd 'update-grub'
+echo
 
 
 # Install other system utilities
