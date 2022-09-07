@@ -4,7 +4,7 @@ org.gnome.desktop.privacy old-files-age 7
 org.gnome.desktop.input-sources xkb-options ['lv3:rwin_switch']
 org.gnome.desktop.session idle-delay 300
 org.gnome.desktop.calendar show-weekdate true
-org.gnome.settings-daemon.plugins.media-keys calculator ['<Super>c']
+org.gnome.settings-daemon.plugins.media-keys calculator ['<Primary><Alt>c']
 org.gnome.settings-daemon.plugins.power ambient-enabled false
 org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
 org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 7200

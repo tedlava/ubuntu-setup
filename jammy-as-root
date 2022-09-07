@@ -250,6 +250,7 @@ if [ "$GRUB_CMDLINE_LINUX_DEFAULT" != 'quiet splash' ]; then
 	echo
 	echo 'Setting up grub...'
 	confirm_cmd "sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT.*/GRUB_CMDLINE_LINUX_DEFAULT=\"$GRUB_CMDLINE_LINUX_DEFAULT\"/' /etc/default/grub"
+	confirm_cmd 'sed -i "s/\\(GRUB_TIMEOUT=.*\\)/\\1\\nGRUB_RECORDFAIL_TIMEOUT=5/" /etc/default/grub'
 	confirm_cmd 'update-grub'
 	echo
 fi
@@ -275,6 +276,13 @@ if [ -n "$(contains apt_installs gufw)" ]; then
 	confirm_cmd 'gufw'
 	echo
 fi
+
+
+# Create launcher to switch between light/dark color schemes
+echo
+echo 'Create launcher to toggle light/dark color schemes... (keyboard shortcut: Super + c)'
+confirm_cmd "cp -av $script_dir/toggle-color-scheme /usr/local/bin/"
+confirm_cmd "chmod +x /usr/local/bin/toggle-color-scheme"
 
 
 # Create timeshift snapshot after installing vanilla Gnome

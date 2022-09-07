@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+# This script will be assigned a keyboard shortcut of "Super + c" to toggle
+# between light and dark themes.  It changes both GTK4 and GTK3 themes.  Feel
+# free change the GTK3 themes specified below.
+
+
+if [ "$(gsettings get org.gnome.desktop.interface color-scheme)" == "'prefer-light'" ]; then
+	gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+	gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+else
+	gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+	gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'
+fi
+
