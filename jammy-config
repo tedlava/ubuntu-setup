@@ -52,6 +52,7 @@ ppas=(
 
 apt_installs=(
 	# OS packages
+	ffmpegthumbnailer # totem-video-thumbnailer is broken in 22.04
 	openssh-server
 	tlp
 	tlp-rdw

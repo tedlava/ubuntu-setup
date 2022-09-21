@@ -195,6 +195,14 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	fi
 
 
+	# Set up ffmpegthumbnailer
+	echo
+	echo 'Setting up ffmpegthumbnailer for video thumbnails in nautilus...'
+	confirm_cmd "mkdir $HOME/.local/share/thumbnailers"
+	confirm_cmd "ln -s /usr/share/thumbnailers/ffmpegthumbnailer.thumbnailer $HOME/.local/share/thumbnailers/ffmpegthumbnailer.thumbnailer"
+	confirm_cmd "rm -rf $HOME/.cache/thumbnails/*"
+
+
 	# Make sure user is in a Gnome session instead of an Ubuntu session
 	if [ "$GDMSESSION" != 'gnome' ] && [ "$GDMSESSION" != 'gnome-xorg' ]; then
 		echo
