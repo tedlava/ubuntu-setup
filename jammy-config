@@ -84,7 +84,7 @@ apt_installs=(
 
 
 flatpaks=(
-	com.google.Chrome
+	# com.google.Chrome # Better to download the .deb directly from Google
 	com.github.xournalpp.xournalpp
 	com.github.johnfactotum.Foliate
 	org.kde.kdenlive
