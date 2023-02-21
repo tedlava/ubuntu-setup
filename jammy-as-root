@@ -64,7 +64,10 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	echo 'of a bad package.  Check the boxes to add monthly and weekly snapshots.'
 	echo 'Including @home in snapshots is fine since it has its own subvolume.'
 	echo "Take an initial snapshot, comment it with \"Ubuntu (${release_name}) installed\","
-	echo 'just in case you screw something up in the rest of the installation... ;)'
+	echo 'just in case you screw something up in the rest of the installation, you can'
+	echo 'always restore to THIS point before any significant changes were made to your'
+	echo 'system... ;)'
+	echo
 	echo 'After it is done snapshotting the system, please close the timeshift window.'
 	echo
 	read -p 'Press ENTER to open timeshift...'
@@ -168,9 +171,11 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 	fi
 
 
-	# Startup driver manager to install firmware and other drivers (such as NVIDIA)
+	# Startup driver manager to install firmware and other drivers
 	echo
 	echo 'Please install any recommended firmware and drivers in the Driver Manager...'
+	echo '*** If using a modern NVIDIA GPU on Wayland, a manual driver may have been'
+	echo '    installed automatically that cannot be changed in this application.'
 	echo
 	read -p 'Press ENTER to open Software & Updates -> Additional Drivers...'
 	sudo -u $SUDO_USER touch "$status_dir/drivers_installed"
