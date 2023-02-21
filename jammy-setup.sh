@@ -374,10 +374,6 @@ elif [ -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 		echo 'Installing Flatpak applications...'
 		echo
 		confirm_cmd "flatpak -y install ${flatpaks[@]}"
-		if [ ! -d "$HOME/dotfiles/var" ]; then
-			confirm_cmd "mkdir -p $HOME/dotfiles/var"
-		fi
-		confirm_cmd "ln -s $HOME/dotfiles/var $HOME/.var" # Symlinked .var doesn't work with Steam, but Steam runs better as a native .deb anyway!
 		echo
 	fi
 

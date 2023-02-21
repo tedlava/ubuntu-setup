@@ -217,6 +217,16 @@ if [ -n "$gdm_inhibit_ac" ]; then
 fi
 
 
+# Install Google Chrome
+if [ -n "$install_google_chrome" ]; then
+	echo
+	echo 'Installing Google Chrome...'
+	confirm_cmd "sudo -u $SUDO_USER curl -L https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o $script_dir/downloads/chrome.deb"
+	confirm_cmd "apt-get -y install $script_dir/downloads/chrome.deb"
+	echo
+fi
+
+
 # Install Windscribe VPN
 if [ -n "$install_windscribe" ]; then
 	echo

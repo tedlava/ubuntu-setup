@@ -2,7 +2,7 @@
 
 
 # This file holds all the variables that will be loaded and used to setup
-# your Debian installation.  Please customize this for EACH computer and save
+# your Ubuntu installation.  Please customize this for EACH computer and save
 # it in something like the ~/Setup directory (can be configured to use a
 # different directory in the *-setup.sh script itself.  Doing so will prevent
 # merge errors in case you do a git pull later for a newer version.
@@ -14,6 +14,7 @@ GRUB_CMDLINE_LINUX_DEFAULT='quiet splash' # To be copied into /etc/default/grub,
 ssd=1 # Uncomment if installed to an SSD
 gdm_inhibit_ac=1 # Inhibit suspend if on AC power but not logged (for servers and SSH access)
 ignore_lid_switch=1 # Ignore suspend on closing lid tweak
+install_google_chrome=1 # The native .deb version is better than the Flatpak
 install_windscribe=1 # VPN with slick Linux GUI!
 load_mimetypes=1 # Load Nautilus mime types for Neovim
 patched_font='Hack Nerd Font 9' # Because only 1337 hax0rz use a font called Hack
@@ -66,11 +67,12 @@ apt_installs=(
 	# libdvd-pkg # Uncomment to watch DVD movies with internal/external DVD drive
 	nautilus-dropbox
 
-	# Development packages
+	# Developer packages
 	neovim
 	python3-neovim
 	ipython3
 	python3-venv
+	tree
 
 	# Apps
 	gimp
