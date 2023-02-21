@@ -11,8 +11,8 @@ needed for this specific computer.
 
     $ mkdir ~/Setup
     $ cd ~/Setup
-    $ git clone https://www.github.com/tedlava/ubuntu-setup
-    $ cp -a ubuntu-setup/jammy-config ubuntu-setup/jammy-dconf.txt ubuntu-setup/jammy-gsettings.txt ./
+    $ git clone https://github.com/tedlava/ubuntu-setup.git
+    $ cp -av ubuntu-setup/jammy-config ubuntu-setup/jammy-dconf.txt ubuntu-setup/jammy-gsettings.txt ./
     $ nano jammy-config # Make changes to the config, add/remove packages, or other settings
     $ nano jammy-dconf.txt
     $ nano jammy-gsettings.txt
