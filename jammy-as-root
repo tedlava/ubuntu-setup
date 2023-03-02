@@ -303,8 +303,8 @@ confirm_cmd "chmod +x /usr/local/bin/toggle-color-scheme"
 if [ -n "$move_indicators" ]; then
 	echo
 	echo 'Copy script into PATH to move Gnome extension indicators to the right of the system-monitor...'
-	confirm_cmd "cp -av $script_dir/move-indicators /usr/local/bin/"
-	confirm_cmd "chmod +x /usr/local/bin/move-indicators"
+	confirm_cmd "cp -av $script_dir/$release_name-move-indicators /usr/local/bin/"
+	confirm_cmd "chmod +x /usr/local/bin/$release_name-move-indicators"
 fi
 
 

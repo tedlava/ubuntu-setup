@@ -335,7 +335,7 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 		if [ ! -d "$HOME/.config/autostart" ]; then
 			confirm_cmd "mkdir $HOME/.config/autostart"
 		fi
-		confirm_cmd 'echo -e "[Desktop Entry]\\nType=Application\\nName=ubuntu-setup move indicators\\nComment=Moves user-installed Gnome extension indicators to the right of the system-monitor (updates periodically move them back to the left)\\nExec=/usr/local/bin/move_indicators\\n" > $HOME/.config/autostart/move_indicators.desktop'
+		confirm_cmd "echo -e \"[Desktop Entry]\\\\nType=Application\\\\nName=ubuntu-setup move indicators\\\\nComment=Moves user-installed Gnome extension indicators to the right of the system-monitor (updates periodically move them back to the left)\\\\nExec=/usr/local/bin/$release_name-move-indicators\\\\n\" > $HOME/.config/autostart/$release_name-move-indicators.desktop"
 		echo
 	fi
 
