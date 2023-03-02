@@ -1,0 +1,21 @@
+#!/usr/bin/bash
+
+
+# Moves user-installed Gnome extensions to the right of the system-monitor
+# indicator for aesthetics. Updates to the extensions often moves them back to
+# their default positions, which are to the left of the system-monitor, which
+# looks ugly!
+
+release_name=$(basename $0 | cut -d'-' -f1 | cut -d'/' -f2)
+# Load variables from config file (includes array of gnome extension UUIDs)
+source $HOME/Setup/$release_name-config
+
+if [ -n "${gnome_extension_uuids[*]}" ]; then
+	for ext_uuid in "${gnome_extension_uuids[@]}"; do
+		ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_uuid"
+		# Move all indicators to the right of the system-monitor indicator on the panel
+		if [ -z $(echo "$ext_uuid" | grep 'system-monitor') ]; then
+			sed -i 's/\(Main.panel.addToStatusArea([^,]*,[^,]*\)\(, [0-9]\)\?);/\1, 2);/' $ext_dir/extension.js
+		fi
+	done
+fi

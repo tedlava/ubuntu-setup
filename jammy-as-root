@@ -115,9 +115,10 @@ if [ ! -f "$status_dir/drivers_installed" ]; then
 			confirm_cmd "snap remove --purge $snap"
 		done
 		confirm_cmd 'apt-get -y purge snapd'
-		confirm_cmd "rm -rf /var/cache/snapd/ $home/snap" # What about /snap and /var/snap ???
+		confirm_cmd "rm -rf /var/cache/snapd/ $home/snap"
 		confirm_cmd 'echo -e "Package: snapd\\nPin: release a=*\\nPin-Priority: -10" > /etc/apt/preferences.d/nosnap.pref'
 		confirm_cmd 'echo -e "Package: firefox*\\nPin: release o=Ubuntu*\\nPin-Priority: -1" > /etc/apt/preferences.d/firefox-no-snap.pref'
+		confirm_cmd "sed -i 's|\(PATH=.*\):/snap/bin|\1|' /etc/environment"
 	fi
 
 
@@ -296,6 +297,15 @@ echo
 echo 'Create launcher to toggle light/dark color schemes... (keyboard shortcut: Super + c)'
 confirm_cmd "cp -av $script_dir/toggle-color-scheme /usr/local/bin/"
 confirm_cmd "chmod +x /usr/local/bin/toggle-color-scheme"
+
+
+# Copy script into PATH to move indicators
+if [ -n "$move_indicators" ]; then
+	echo
+	echo 'Copy script into PATH to move Gnome extension indicators to the right of the system-monitor...'
+	confirm_cmd "cp -av $script_dir/move-indicators /usr/local/bin/"
+	confirm_cmd "chmod +x /usr/local/bin/move-indicators"
+fi
 
 
 # Create timeshift snapshot after installing vanilla Gnome

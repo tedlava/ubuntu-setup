@@ -236,15 +236,37 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	read -p 'Press ENTER to open Default Applications...'
 	confirm_cmd 'gnome-control-center default-apps'
 
-	# Install Gnome extensions
+	# Install Gnome extensions (old)
+	# echo
+	# if [ -n "${extension_urls[*]}" ]; then
+	# 	echo 'Installing Gnome extensions...'
+	# 	echo
+	# 	gnome_ver=$(gnome-shell --version | cut -d' ' -f3)
+	# 	base_url='https://extensions.gnome.org'
+	# 	for extension in "${extension_urls[@]}"; do
+	# 		ext_uuid=$(curl -s $extension | grep -oP 'data-uuid="\K[^"]+')
+	# 		info_url="$base_url/extension-info/?uuid=$ext_uuid&shell_version=$gnome_ver"
+	# 		download_url="$base_url$(curl -s "$info_url" | sed -e 's/.*"download_url": "\([^"]*\)".*/\1/')"
+	# 		confirm_cmd "curl -L '$download_url' > '$script_dir/downloads/$ext_uuid.zip'"
+	# 		ext_dir="$HOME/.local/share/gnome-shell/extensions/$ext_uuid"
+	# 		confirm_cmd "gnome-extensions install $script_dir/downloads/$ext_uuid.zip"
+	# 		# Move all indicators to the right of the system-monitor indicator on the panel
+	# 		if [ -z $(echo "$ext_uuid" | grep 'system-monitor') ]; then
+	# 			confirm_cmd "sed -i 's/\(Main.panel.addToStatusArea([^,]*,[^,]*\)\(, [0-9]\)\?);/\1, 2);/' $ext_dir/extension.js"
+	# 		fi
+	# 	done
+	# 	echo
+	# fi
+
+
+	# Install Gnome extensions (new)
 	echo
-	if [ -n "${extension_urls[*]}" ]; then
+	if [ -n "${gnome_extension_uuids[*]}" ]; then
 		echo 'Installing Gnome extensions...'
 		echo
 		gnome_ver=$(gnome-shell --version | cut -d' ' -f3)
 		base_url='https://extensions.gnome.org'
-		for extension in "${extension_urls[@]}"; do
-			ext_uuid=$(curl -s $extension | grep -oP 'data-uuid="\K[^"]+')
+		for ext_uuid in "${gnome_extension_uuids[@]}"; do
 			info_url="$base_url/extension-info/?uuid=$ext_uuid&shell_version=$gnome_ver"
 			download_url="$base_url$(curl -s "$info_url" | sed -e 's/.*"download_url": "\([^"]*\)".*/\1/')"
 			confirm_cmd "curl -L '$download_url' > '$script_dir/downloads/$ext_uuid.zip'"
@@ -302,6 +324,18 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 			confirm_cmd "mkdir $HOME/.config/autostart"
 		fi
 		confirm_cmd 'echo -e "[Desktop Entry]\\nType=Application\\nName=ignore-lid-switch-tweak\\nExec=/usr/libexec/gnome-tweak-tool-lid-inhibitor\\n" > $HOME/.config/autostart/ignore-lid-switch-tweak.desktop'
+		echo
+	fi
+
+
+	# Create startup application to move indicators
+	if [ -n "$move_indicators" ]; then
+		echo
+		echo 'Creating startup application to move Gnome extension indicators to the right of the system-monitor...'
+		if [ ! -d "$HOME/.config/autostart" ]; then
+			confirm_cmd "mkdir $HOME/.config/autostart"
+		fi
+		confirm_cmd 'echo -e "[Desktop Entry]\\nType=Application\\nName=ubuntu-setup move indicators\\nComment=Moves user-installed Gnome extension indicators to the right of the system-monitor (updates periodically move them back to the left)\\nExec=/usr/local/bin/move_indicators\\n" > $HOME/.config/autostart/move_indicators.desktop'
 		echo
 	fi
 
