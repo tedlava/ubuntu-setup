@@ -233,7 +233,7 @@ if [ ! -f "$status_dir/setup_part_1" ] && [ ! -f "$status_dir/setup_part_2" ]; t
 	echo 'The default Gnome Videos player never seems to do very well.  Switch the default'
 	echo 'video player to VLC, then close the window to continue the setup script...'
 	echo
-	read -p 'Press ENTER to open Display Settings...'
+	read -p 'Press ENTER to open Default Applications...'
 	confirm_cmd 'gnome-control-center default-apps'
 
 	# Install Gnome extensions

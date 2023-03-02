@@ -82,6 +82,7 @@ apt_installs=(
 	gnucash
 	python3-gnucash
 	wine # For playing Windows games
+	steam
 )
 
 
